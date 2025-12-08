@@ -1,4 +1,5 @@
-use std::{process, fs, path::Path, error::Error};
+use std::{process, fs, path::Path, error::Error, io::{self, Read}};
+use raw_keys::{RawMode};
 
 fn main() {
     run();
@@ -7,7 +8,6 @@ fn main() {
 fn run(){
     let global_path = String::from(".");
     let mut content: Vec<String> = Vec::new();
-
     if let Err(e) = get_content_of_current_dir(&global_path, &mut content){
         eprintln!("{e}");
         process::exit(1);
@@ -15,8 +15,15 @@ fn run(){
 
     show_content(&content);
 
-    loop {
+    let raw_mode = RawMode::new().unwrap();
+    let stdin = io::stdin();
+    let mut handle = stdin.lock();
+    let mut c = [0u8; 1];
+
+    while handle.read(&mut c).unwrap() == 1 && c[0] != b'q' {
+        println!("{}", c[0] as char);
     }
+
 }
 
 fn get_content_of_current_dir(global_path: &str, content: &mut Vec<String>) -> Result<(), Box<dyn Error>>{
