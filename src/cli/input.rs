@@ -1,16 +1,16 @@
 use crate::cli::run_cli::{Action};
 
-pub fn handle_input(c: char, index: &i32, len: &usize) -> Action{
+pub fn handle_input(c: char, index: i32, len: usize) -> Action{
     match c {
         'k' => {
-            if *index - 1 > -1 {
+            if index - 1 > -1 {
                 Action::UP
             }else {
                 Action::NONE
             }
         },
         'j' => {
-            if *index + 1 < (*len) as i32 {
+            if index + 1 < len as i32 {
                 Action::DOWN
             }else {
                 Action::NONE
