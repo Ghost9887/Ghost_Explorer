@@ -25,10 +25,10 @@ pub fn handle_input(c: char, index: i32, len: usize) -> Action{
     }
 }
 
-pub fn handle_sequence(b: char) -> char {
+pub fn handle_sequence(b: char) -> Option<char> {
     match b {
-        'A' => 'k',
-        'B' => 'j',
-        _ => ' ',
+        'A' => Some('k'),
+        'B' => Some('j'),
+        _ => None,
     }
 }

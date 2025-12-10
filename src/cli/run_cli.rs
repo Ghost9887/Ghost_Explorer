@@ -1,5 +1,6 @@
 use std::{process, io::{self, Read}};
 use raw_keys::RawMode;
+use terminal_size::{terminal_size, Height, Width};
 use crate::cli::content::{get_content_of_current_dir, update_content};
 use crate::cli::input::{handle_input, handle_sequence};
 
@@ -22,7 +23,7 @@ impl Dir {
             index:0, 
             length:0,
             start: 0,
-            window_size: 10,
+            window_size: get_terminal_size(),
         }
     }
     pub fn reset(&mut self) {
@@ -94,17 +95,33 @@ pub fn run_cli(){
             if handle.read(&mut seq2).unwrap() != 1 {
                 continue;
             }
+
             let char2 = seq2[0] as char;
             let char_equivelant = handle_sequence(char2);
-            if char_equivelant == ' ' {
-                continue;
-            }
-            let action = handle_input(char_equivelant, dir.index, dir.length);
-            update_content(&mut dir, action);
-            continue;
+
+            match char_equivelant {
+                Some(c) => {
+                    let action = handle_input(c, dir.index, dir.length);
+                    update_content(&mut dir, action);
+                    continue;
+                },
+                None => continue,
+            };
         }
         let action = handle_input(char, dir.index, dir.length);
         update_content(&mut dir, action);
+    }
+}
+
+fn get_terminal_size() -> usize{
+    let size = terminal_size();
+    if let Some((Width(_w), Height(h))) = size {
+        println!("{h}");
+        (h - 4) as usize
+    }
+    else {
+        //defualt
+        20
     }
 }
 
