@@ -1,76 +1,12 @@
 use std::{process, io::{self, Read}};
 use raw_keys::RawMode;
-use terminal_size::{terminal_size, Height, Width};
 use crate::cli::content::{get_content_of_current_dir, update_content};
 use crate::cli::input::{handle_input, handle_sequence};
-
-pub struct Dir{
-    pub parent_path: String,
-    pub path: String,
-    pub content: Vec<String>,
-    pub index: i32,
-    pub length: usize,
-    pub start: usize,
-    pub window_size: usize,
-    pub hidden_files: bool,
-}
-
-impl Dir {
-    pub fn new() -> Self {
-        Dir { 
-            parent_path: String::new(), 
-            path:String::from("/home/wsl/Rust"), 
-            content:Vec::new(), 
-            index:0, 
-            length:0,
-            start: 0,
-            window_size: get_terminal_size(),
-            hidden_files: false,
-        }
-    }
-    pub fn reset(&mut self) {
-        self.index = 0;
-        let _ = &self.content.clear();
-        self.length = 0;
-        self.start = 0;
-    }
-    pub fn get_content(&self, index: i32) -> &String {
-        &self.content[index as usize]
-    }
-    pub fn push_content(&mut self, value: String) {
-        let _ = &self.content.push(value);
-    }
-    pub fn change_index(&mut self, value: i32) {
-        self.index += value;
-    }
-    pub fn change_length(&mut self, new_length: usize) {
-        self.length = new_length;
-    }
-    pub fn change_parent(&mut self, parent: String) {
-        self.parent_path = parent;
-    }
-    pub fn change_path(&mut self, new_path: String) {
-       self.path = new_path;
-    }
-    pub fn change_start(&mut self, value: usize){
-        self.start = value;
-    }
-    pub fn switch_hf(&mut self) {
-        self.hidden_files = !self.hidden_files;
-    }
-}
-
-#[derive(PartialEq)]
-pub enum Action{
-    Empty,
-    Up,
-    Down,
-    Enter,
-    ShowHiddenFiles,
-}
+use crate::cli::data::{Dir, Action, Global};
 
 pub fn run_cli(){
-
+    
+    let mut global = Global::new();
     let mut dir = Dir::new();
     
     let _raw_mode = RawMode::new().unwrap();
@@ -78,12 +14,12 @@ pub fn run_cli(){
     let mut handle = stdin.lock();
     let mut c = [0u8; 1];
 
-    if let Err(e) = get_content_of_current_dir(&mut dir){
+    if let Err(e) = get_content_of_current_dir(&mut dir, &mut global){
         eprintln!("{e}");
         process::exit(1);
     };
 
-    update_content(&mut dir, Action::Empty);
+    update_content(&mut dir, &mut global, Action::Empty);
 
     while handle.read(&mut c).unwrap() == 1 && c[0] != b'q' {
         //println!("{}", c[0] as char);
@@ -108,27 +44,15 @@ pub fn run_cli(){
             match char_equivelant {
                 Some(c) => {
                     let action = handle_input(c, dir.index, dir.length);
-                    update_content(&mut dir, action);
+                    update_content(&mut dir, &mut global, action);
                     continue;
                 },
                 None => continue,
             };
         }
         let action = handle_input(char, dir.index, dir.length);
-        update_content(&mut dir, action);
+        update_content(&mut dir, &mut global, action);
     }
 }
 
-fn get_terminal_size() -> usize{
-    let size = terminal_size();
-    if let Some((Width(_w), Height(h))) = size {
-        println!("{h}");
-        //minus the length of the whitespaces and absolute path
-        (h - 5) as usize
-    }
-    else {
-        //defualt
-        20
-    }
-}
 

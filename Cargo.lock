@@ -7,6 +7,7 @@ name = "Ghost_Explorer"
 version = "0.1.0"
 dependencies = [
  "raw_keys",
+ "simply_colored",
  "terminal_size",
 ]
 
@@ -64,6 +65,12 @@ dependencies = [
  "linux-raw-sys",
  "windows-sys 0.61.2",
 ]
+
+[[package]]
+name = "simply_colored"
+version = "0.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8b9a4cd76dce3448e21b46120655c4567c0ae8d51156cd764f7fa7048fb79ac1"
 
 [[package]]
 name = "terminal_size"

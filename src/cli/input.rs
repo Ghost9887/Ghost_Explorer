@@ -1,4 +1,4 @@
-use crate::cli::run_cli::{Action};
+use crate::cli::data::{Action};
 
 pub fn handle_input(c: char, index: i32, len: usize) -> Action{
     match c {
@@ -18,6 +18,9 @@ pub fn handle_input(c: char, index: i32, len: usize) -> Action{
         },
         'h' => {
             Action::ShowHiddenFiles
+        }
+        'x' => {
+            Action::Select
         }
         '\r' | '\n' => {
             Action::Enter

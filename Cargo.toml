@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 raw_keys = { path = "../raw_keys" }
 terminal_size = "0.4.3"
+simply_colored = "0.1.4"
