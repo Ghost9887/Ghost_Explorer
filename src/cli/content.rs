@@ -40,7 +40,12 @@ pub fn update_content(dir: &mut Dir, action: Action) {
             dir.change_path(dir.parent_path.to_string());
             //println!("{}", dir.parent());
         }else {
-            let path = format!("{}/{}", dir.path, dir.get_content(index).to_string());
+            let path: String;
+            if dir.path != "/" {
+                path = format!("{}/{}", dir.path, dir.get_content(index).to_string());
+            }else {
+                path = format!("/{}", dir.get_content(index).to_string());
+            }
             dir.change_path(path);
             println!("New path: {}", dir.path);
         }

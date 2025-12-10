@@ -117,7 +117,7 @@ fn get_terminal_size() -> usize{
     let size = terminal_size();
     if let Some((Width(_w), Height(h))) = size {
         println!("{h}");
-        (h - 4) as usize
+        (h - 5) as usize
     }
     else {
         //defualt
