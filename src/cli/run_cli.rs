@@ -12,6 +12,7 @@ pub struct Dir{
     pub length: usize,
     pub start: usize,
     pub window_size: usize,
+    pub hidden_files: bool,
 }
 
 impl Dir {
@@ -24,6 +25,7 @@ impl Dir {
             length:0,
             start: 0,
             window_size: get_terminal_size(),
+            hidden_files: false,
         }
     }
     pub fn reset(&mut self) {
@@ -53,14 +55,18 @@ impl Dir {
     pub fn change_start(&mut self, value: usize){
         self.start = value;
     }
+    pub fn switch_hf(&mut self) {
+        self.hidden_files = !self.hidden_files;
+    }
 }
 
 #[derive(PartialEq)]
 pub enum Action{
-    NONE,
-    UP,
-    DOWN,
-    ENTER,
+    Empty,
+    Up,
+    Down,
+    Enter,
+    ShowHiddenFiles,
 }
 
 pub fn run_cli(){
@@ -77,7 +83,7 @@ pub fn run_cli(){
         process::exit(1);
     };
 
-    update_content(&mut dir, Action::NONE);
+    update_content(&mut dir, Action::Empty);
 
     while handle.read(&mut c).unwrap() == 1 && c[0] != b'q' {
         //println!("{}", c[0] as char);
@@ -117,6 +123,7 @@ fn get_terminal_size() -> usize{
     let size = terminal_size();
     if let Some((Width(_w), Height(h))) = size {
         println!("{h}");
+        //minus the length of the whitespaces and absolute path
         (h - 5) as usize
     }
     else {

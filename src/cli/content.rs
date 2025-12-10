@@ -17,7 +17,14 @@ pub fn get_content_of_current_dir(dir: &mut Dir) -> Result<(), Box<dyn Error>> {
         for entry in entries {
             if let Ok(entry) = entry {
                 if let Some(name) = entry.file_name().to_str() {
-                    dir.push_content(name.to_string());
+                    if !dir.hidden_files{
+                        if !name.to_string().starts_with(".") {
+                            dir.push_content(name.to_string());
+                        }
+                    }else {
+                        dir.push_content(name.to_string());
+                    }
+                   
                 }
             }
         }
@@ -28,36 +35,7 @@ pub fn get_content_of_current_dir(dir: &mut Dir) -> Result<(), Box<dyn Error>> {
 
 pub fn update_content(dir: &mut Dir, action: Action) {
     
-    if action == Action::UP {
-        dir.change_index(-1);
-    }
-    else if action == Action::DOWN {
-        dir.change_index(1);
-    }
-    else if action == Action::ENTER {
-        let index = dir.index;
-        if index == 0 {
-            dir.change_path(dir.parent_path.to_string());
-            //println!("{}", dir.parent());
-        }else {
-            let path: String;
-            if dir.path != "/" {
-                path = format!("{}/{}", dir.path, dir.get_content(index).to_string());
-            }else {
-                path = format!("/{}", dir.get_content(index).to_string());
-            }
-            dir.change_path(path);
-            println!("New path: {}", dir.path);
-        }
-        if let Err(e) = get_content_of_current_dir(dir) {
-            eprintln!("{e}");
-            process::exit(1);
-        }
-    }
-    else{
-        println!("NONE");
-    }
-
+    handle_action(dir, action);
     update_scroll(dir);
 
     print!("\x1B[2J\x1B[1;1H");
@@ -83,5 +61,43 @@ pub fn update_scroll(dir: &mut Dir){
     }
     if idx >= dir.start + dir.window_size {
         dir.change_start(idx - dir.window_size);
+    }
+}
+
+pub fn handle_action(dir: &mut Dir, action: Action) {
+    match action {
+        Action::Up => {
+            dir.change_index(-1);
+        },
+        Action::Down => {
+            dir.change_index(1);
+        },
+        Action::Enter => {
+            let index = dir.index;
+            if index == 0 {
+                dir.change_path(dir.parent_path.to_string());
+            }else {
+                let path: String;
+                if dir.path != "/" {
+                    path = format!("{}/{}", dir.path, dir.get_content(index).to_string());
+                }else {
+                    path = format!("/{}", dir.get_content(index).to_string());
+                }
+                dir.change_path(path);
+                println!("New path: {}", dir.path);
+            }
+            if let Err(e) = get_content_of_current_dir(dir) {
+                eprintln!("{e}");
+                process::exit(1);
+            }
+        },
+        Action::ShowHiddenFiles => {
+            dir.switch_hf();
+            if let Err(e) = get_content_of_current_dir(dir) {
+                eprintln!("{e}");
+                process::exit(1);
+            }
+        },
+        _ => {}
     }
 }

@@ -4,23 +4,26 @@ pub fn handle_input(c: char, index: i32, len: usize) -> Action{
     match c {
         'k' => {
             if index - 1 > -1 {
-                Action::UP
+                Action::Up
             }else {
-                Action::NONE
+                Action::Empty
             }
         },
         'j' => {
             if index + 1 < len as i32 {
-                Action::DOWN
+                Action::Down
             }else {
-                Action::NONE
+                Action::Empty
             }
         },
+        'h' => {
+            Action::ShowHiddenFiles
+        }
         '\r' | '\n' => {
-            Action::ENTER
+            Action::Enter
         },
         _ => {
-            Action::NONE
+            Action::Empty
         },
     }
 }
