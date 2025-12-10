@@ -81,7 +81,12 @@ pub fn update_content(dir: &mut Dir, global: &mut Global, action: Action) {
                     }
                 },
                 _ => {
-                    println!("{} <-", element.name);
+                    if !element.selected {
+                        println!("{} <-", element.name);
+                    }
+                    else {
+                        println!("{GREEN}{}{RESET} * <-", element.name);
+                    }
                 }    
             }
             
@@ -102,7 +107,12 @@ pub fn update_content(dir: &mut Dir, global: &mut Global, action: Action) {
                     }
                 }
                 _ => {
-                    println!("{}", element.name);
+                    if !element.selected {
+                        println!("{}", element.name);
+                    }
+                    else {
+                        println!("{GREEN}{}{RESET} *", element.name);
+                    }
                 }    
             }
         }
