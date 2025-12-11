@@ -2,50 +2,47 @@ use crate::cli::data::*;
 use crate::cli::content::{get_content_of_current_dir, update_content};
 use std::{process, io::{self, Read}};
 
-//TODO: Refactor
 pub fn read_input(mut dir: Dir, mut global: Global) {
     
     let stdin = io::stdin();
     let mut handle = stdin.lock();
     let mut c = [0u8; 1];
 
-
     while handle.read(&mut c).unwrap() == 1 && c[0] != b'q' {
         let char = c[0] as char;
+        
+        let effective_char = match char {
+            '\x1b' => read_escape_sequence(&mut handle),
+            _ => Some(char),
+        };
 
-        if char == '\x1b' {
-            let mut seq1 = [0u8; 1];
-            if handle.read(&mut seq1).unwrap() != 1 {
-                continue;
-            }
-            if seq1[0] != b'[' {
-                continue;
-            }
-            let mut seq2 = [0u8; 1];
-            if handle.read(&mut seq2).unwrap() != 1 {
-                continue;
-            }
-
-            let char2 = seq2[0] as char;
-            let char_equivelant = handle_sequence(char2);
-
-            match char_equivelant {
-                Some(c) => {
-                    let action = handle_input(c, dir.index, dir.length);
-                    handle_action(&mut dir, &mut global, action);
-                    update_content(&mut dir, &mut global);
-                    continue;
-                    },
-                    None => continue,
-                };
-            }
-            let action = handle_input(char, dir.index, dir.length);
-            handle_action(&mut dir, &mut global, action);
-            update_content(&mut dir, &mut global);
+        if let Some(char) = effective_char {
+            process_char(char, &mut dir, &mut global);
+        };
     }
 }
 
-pub fn handle_input(c: char, index: i32, len: usize) -> Action{
+fn read_escape_sequence<R: io::Read>(handle: &mut R) -> Option<char> {
+    let mut seq = [0u8; 1];
+
+    if handle.read(&mut seq).ok()? != 1 || seq[0] != b'[' {
+        return None;
+    }
+    if handle.read(&mut seq).ok()? != 1 {
+        return None;
+    }
+
+    handle_sequence(seq[0] as char)
+}
+
+fn process_char(c: char, dir: &mut Dir, global: &mut Global) {
+    let action = handle_input(c, dir.index, dir.length);
+    handle_action(dir, global, action);
+    update_content(dir, global);
+}
+
+
+fn handle_input(c: char, index: i32, len: usize) -> Action{
     match c {
         'k' => {
             if index - 1 > -1 {

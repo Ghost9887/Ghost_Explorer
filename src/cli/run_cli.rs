@@ -15,7 +15,6 @@ pub fn run_cli(){
         eprintln!("{e}");
         process::exit(1);
     };
-
     update_content(&mut dir, &mut global);
 
     if let Err(e) = raw_mode.start(){
