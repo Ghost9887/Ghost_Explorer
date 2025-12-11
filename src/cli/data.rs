@@ -4,6 +4,7 @@ pub struct Global {
     pub start: usize,
     pub window_size: usize,
     pub hidden_files: bool,
+    pub adding: bool,
 }
 
 impl Global {
@@ -12,6 +13,7 @@ impl Global {
             start: 0,
             window_size: get_terminal_size(),
             hidden_files: false,
+            adding: false,
         }
     }
     pub fn change_start(&mut self, value: usize){
@@ -19,6 +21,9 @@ impl Global {
     }
     pub fn switch_hf(&mut self) {
         self.hidden_files = !self.hidden_files;
+    }
+    pub fn switch_adding(&mut self) {
+        self.adding = !self.adding;
     }
 }
 
@@ -102,8 +107,7 @@ pub enum Action{
     Enter,
     ShowHiddenFiles,
     Select,
-    AddFile,
-    AddDirectory,
+    Add,
     Delete,
 }
 

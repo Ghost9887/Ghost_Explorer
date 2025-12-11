@@ -1,4 +1,4 @@
-use std::{path::Path, error::Error, fs, process};
+use std::{path::Path, error::Error, fs};
 use crate::cli::data::*;
 use simply_colored::*;
 
@@ -31,11 +31,8 @@ pub fn get_content_of_current_dir(dir: &mut Dir, global: &mut Global) -> Result<
     Ok(())
 }
 
-pub fn update_content(dir: &mut Dir, global: &mut Global, action: Action) {
-    
-    handle_action(dir, global, action);
+pub fn update_content(dir: &mut Dir, global: &mut Global) {
     update_scroll(dir, global);
-
     print!("\x1B[2J\x1B[1;1H");
     println!("Directory: {}\n", dir.path);
     let start = global.start;
@@ -108,62 +105,6 @@ pub fn update_scroll(dir: &mut Dir, global: &mut Global){
     }
     if idx >= global.start + global.window_size {
         global.change_start(idx - global.window_size);
-    }
-}
-
-pub fn handle_action(dir: &mut Dir, global: &mut Global, action: Action) {
-    match action {
-        Action::Up => {
-            dir.change_index(-1);
-        },
-        Action::Down => {
-            dir.change_index(1);
-        },
-        Action::Enter => {
-            if dir.index == 0 {
-                dir.change_path(dir.parent_path.to_string());
-            }else {
-                let path: String;
-                if dir.path != "/" {
-                    path = format!("{}/{}", dir.path, dir.get_content(dir.index).name.to_string());
-                }else {
-                    path = format!("/{}", dir.get_content(dir.index).name.to_string());
-                }
-                dir.change_path(path);
-                dir.index = 0;
-            }
-            if let Err(e) = get_content_of_current_dir(dir, global) {
-                eprintln!("{e}");
-                process::exit(1);
-            }
-        },
-        Action::ShowHiddenFiles => {
-            global.switch_hf();
-            if let Err(e) = get_content_of_current_dir(dir, global) {
-                eprintln!("{e}");
-                process::exit(1);
-            }
-            if dir.index > (dir.length - 1) as i32 {
-                let difference = ((dir.length - 1) as i32) - dir.index;
-                dir.change_index(difference);
-            }
-        },
-        Action::Select => {
-            if dir.index > 0 {
-                let content: &mut Element = dir.get_content_mut(dir.index);  
-                content.select();
-            }
-        },
-        Action::AddFile => {
-            
-        }
-        Action::AddDirectory => {
-
-        }
-        Action::Delete => {
-
-        }
-        _ => {}
     }
 }
 
