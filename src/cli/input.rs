@@ -1,6 +1,49 @@
 use crate::cli::data::*;
-use crate::cli::content::{get_content_of_current_dir};
-use std::{process};
+use crate::cli::content::{get_content_of_current_dir, update_content};
+use std::{process, io::{self, Read}};
+
+//TODO: Refactor
+pub fn read_input(mut dir: Dir, mut global: Global) {
+    
+    let stdin = io::stdin();
+    let mut handle = stdin.lock();
+    let mut c = [0u8; 1];
+
+
+    while handle.read(&mut c).unwrap() == 1 && c[0] != b'q' {
+        let char = c[0] as char;
+
+        if char == '\x1b' {
+            let mut seq1 = [0u8; 1];
+            if handle.read(&mut seq1).unwrap() != 1 {
+                continue;
+            }
+            if seq1[0] != b'[' {
+                continue;
+            }
+            let mut seq2 = [0u8; 1];
+            if handle.read(&mut seq2).unwrap() != 1 {
+                continue;
+            }
+
+            let char2 = seq2[0] as char;
+            let char_equivelant = handle_sequence(char2);
+
+            match char_equivelant {
+                Some(c) => {
+                    let action = handle_input(c, dir.index, dir.length);
+                    handle_action(&mut dir, &mut global, action);
+                    update_content(&mut dir, &mut global);
+                    continue;
+                    },
+                    None => continue,
+                };
+            }
+            let action = handle_input(char, dir.index, dir.length);
+            handle_action(&mut dir, &mut global, action);
+            update_content(&mut dir, &mut global);
+    }
+}
 
 pub fn handle_input(c: char, index: i32, len: usize) -> Action{
     match c {
