@@ -67,7 +67,7 @@ fn handle_input(c: char, index: i32, len: usize) -> Action{
     }
 }
 
-pub fn handle_sequence(b: char) -> Option<char> {
+fn handle_sequence(b: char) -> Option<char> {
     match b {
         'A' => Some('k'),
         'B' => Some('j'),
@@ -76,7 +76,7 @@ pub fn handle_sequence(b: char) -> Option<char> {
 }
 
 
-pub fn handle_action(dir: &mut Dir, global: &mut Global, action: Action) {
+fn handle_action(dir: &mut Dir, global: &mut Global, action: Action) {
     match action {
         Action::Up => {
             dir.change_index(-1);
