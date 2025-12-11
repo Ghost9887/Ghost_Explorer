@@ -9,7 +9,12 @@ pub fn run_cli(){
     let mut global = Global::new();
     let mut dir = Dir::new();
     
-    let _raw_mode = RawMode::new().unwrap();
+    let mut raw_mode = RawMode::new().unwrap();
+    if let Err(e) = raw_mode.start(){
+        eprintln!("{e}");
+        process::exit(1);
+    }
+
     let stdin = io::stdin();
     let mut handle = stdin.lock();
     let mut c = [0u8; 1];
@@ -22,7 +27,6 @@ pub fn run_cli(){
     update_content(&mut dir, &mut global, Action::Empty);
 
     while handle.read(&mut c).unwrap() == 1 && c[0] != b'q' {
-        //println!("{}", c[0] as char);
         let char = c[0] as char;
 
         if char == '\x1b' {

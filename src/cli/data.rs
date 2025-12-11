@@ -41,7 +41,6 @@ impl Element {
     }
 }
 
-
 pub enum Type {
     Return,
     File,
@@ -103,6 +102,9 @@ pub enum Action{
     Enter,
     ShowHiddenFiles,
     Select,
+    AddFile,
+    AddDirectory,
+    Delete,
 }
 
 fn get_terminal_size() -> usize{

@@ -16,18 +16,13 @@ pub fn handle_input(c: char, index: i32, len: usize) -> Action{
                 Action::Empty
             }
         },
-        'h' => {
-            Action::ShowHiddenFiles
-        }
-        'x' => {
-            Action::Select
-        }
-        '\r' | '\n' => {
-            Action::Enter
-        },
-        _ => {
-            Action::Empty
-        },
+        'h' => Action::ShowHiddenFiles,
+        'x' => Action::Select,
+        'f' => Action::AddFile,
+        'd' => Action::AddDirectory,
+        'y' => Action::Delete,
+        '\r' | '\n' => Action::Enter,
+        _ => Action::Empty,
     }
 }
 
